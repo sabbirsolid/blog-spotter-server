@@ -233,7 +233,7 @@ async function run() {
     });
 
     // getting data for featured
-    app.get("/featured", verifyToken, async (req, res) => {
+    app.get("/featured", async (req, res) => {
       try {
         // Use blogsCollection instead of db.blogsCollection
         const topBlogs = await blogsCollection

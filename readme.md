@@ -42,6 +42,4 @@ The Blog Spotter client is a user-facing application where users can interact wi
 
 The Blog Spotter client serves as the user interface for the blogging platform, enabling users to interact with the system effortlessly. It offers robust features like authentication, blog management, commenting, and wishlist handling while ensuring a visually appealing and responsive design.
 
-## Live Links
 
-https://blog-spotter.firebaseapp.com
