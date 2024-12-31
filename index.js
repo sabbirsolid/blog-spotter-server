@@ -294,6 +294,66 @@ async function run() {
           res.status(500).send({ message: "Failed to fetch popular categories" });
         }
       });
+
+      // trending blogs
+     
+      app.get('/trending-topics', async (req, res) => {
+        const { ObjectId } = require("mongodb");
+      
+        try {
+          const result = await blogsCollection
+            .aggregate([
+              {
+                $lookup: {
+                  from: "Comments", // Join with Comments collection
+                  let: { blogId: "$_id" }, // Pass Blogs._id as a variable
+                  pipeline: [
+                    {
+                      $addFields: {
+                        blogIdObj: { $toObjectId: "$blogId" }, // Convert blogId to ObjectId
+                      },
+                    },
+                    {
+                      $match: {
+                        $expr: { $eq: ["$blogIdObj", "$$blogId"] }, // Match converted blogId
+                      },
+                    },
+                  ],
+                  as: "comments",
+                },
+              },
+              {
+                $addFields: {
+                  commentCount: { $size: "$comments" }, // Count the comments
+                },
+              },
+              {
+                $sort: { commentCount: -1 }, // Sort by most comments
+              },
+              {
+                $limit: 5, // Limit to top 5 blogs
+              },
+              {
+                $project: {
+                  _id: 1,
+                  title: 1,
+                  category: 1,
+                  shortDescription: 1,
+                  imageUrl: 1,
+                  commentCount: 1,
+                },
+              },
+            ])
+            .toArray();
+      
+          res.send(result);
+        } catch (err) {
+          console.error("Error fetching trending topics:", err);
+          res.status(500).send({ message: "Failed to fetch trending topics" });
+        }
+      });
+      
+     
       
 
   } finally {
