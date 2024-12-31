@@ -187,8 +187,11 @@ async function run() {
       res.send(result);
     })
     // getting data
-    app.get('/wishlist', async(req, res) =>{
-      const result = await wishlist.find().toArray();
+    app.get('/wishlist', verifyToken, async(req, res) =>{
+      const email = req.query.email;
+      // console.log(email);
+      const query = { email: email }
+      const result = await wishlist.find(query).toArray();
       res.send(result);
     })
     // deleting from wishlist
