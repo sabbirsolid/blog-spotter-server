@@ -184,11 +184,27 @@ async function run() {
     })
 
     // wishlist
-    app.post('/wishlist', async(req, res) =>{
-      const wish = req.body;
-      const result = await wishlist.insertOne(wish);
-      res.send(result);
-    })
+    // app.post('/wishlist', async(req, res) =>{
+    //   const wish = req.body;
+    //   const result = await wishlist.insertOne(wish);
+    //   res.send(result);
+    // })
+    app.post('/wishlist', async (req, res) => {
+      try {
+        const wish = req.body;
+        const filter = { email: wish.email, title: wish.title }; // Define uniqueness condition
+        const update = { $set: wish }; // Update data
+        const options = { upsert: true }; // Insert if not found
+    
+        const result = await wishlist.updateOne(filter, update, options);
+        res.send(result);
+      } catch (err) {
+        console.error('Error handling wishlist:', err);
+        res.status(500).send({ message: 'Internal server error' });
+      }
+    });
+    
+    
     // getting data
     app.get('/wishlist', verifyToken, async(req, res) =>{
       const email = req.query.email;
