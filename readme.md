@@ -1,31 +1,38 @@
-# Blog Spotter Server
+# Blog Spotter Client
 
 ## Purpose
-The Blog Spotter server is designed to provide a backend for a blogging platform. It manages user authentication, blog posts, comments, and wishlist functionalities. The server ensures secure communication and efficient data handling for the application.
+The Blog Spotter client is a user-facing application where users can interact with the blogging platform. It allows users to explore, post, edit, and manage blogs, comment on posts, and maintain a personalized wishlist. The client offers a seamless and intuitive interface for all blogging-related activities.
 
 ## Technologies Used
-- **Node.js** with **Express.js** for server-side logic.
-- **MongoDB** for database management.
-- **JWT** (JSON Web Tokens) for authentication.
-- **dotenv** for environment variable management.
-- **cookie-parser** for handling cookies.
-- **CORS** for enabling cross-origin requests.
+- **React**: Frontend library for building user interfaces.
+- **React Router DOM**: For handling navigation and routing.
+- **TailwindCSS** with **DaisyUI**: For modern and responsive styling.
+- **Firebase**: Authentication and hosting services.
+- **React Query**: For efficient data fetching and state management.
+- **Axios**: For making HTTP requests.
+- **Framer Motion**: For animations and UI transitions.
+- **React Toastify**: For user notifications.
+- **SweetAlert2**: For interactive alerts.
 
-## CRUD Operations
+## Features (CRUD Operations)
 ### Blogs
-- **Create**: Add a new blog post.
-- **Read**: Retrieve all blogs, single blog details, or recent blogs.
-- **Update**: Edit blog information.
-- **Delete**: Not implemented.
+- **Create**: Users can post new blogs with titles, descriptions, and images.
+- **Read**: 
+  - View all blogs with pagination and filtering options.
+  - Explore blog details, including long descriptions and associated comments.
+- **Update**: Edit existing blog posts.
+- **Delete**: Not implemented on the client side.
 
 ### Comments
-- **Create**: Add a comment to a blog.
-- **Read**: Fetch comments for a specific blog.
+- **Create**: Add comments to a blog post to share thoughts and feedback.
+- **Read**: View all comments for a specific blog.
 
 ### Wishlist
-- **Create**: Add a blog to the wishlist.
-- **Read**: Retrieve wishlist items for a user.
-- **Delete**: Remove a blog from the wishlist.
+- **Create**: Add blogs to a wishlist for future reference.
+- **Read**: View wishlist items personalized to the user.
+- **Delete**: Remove blogs from the wishlist.
 
 ## Summary
-This server supports a blogging platform by handling user authentication, blog and comment management, and wishlist functionality. It includes secure token-based authentication and robust data filtering and sorting to enhance user experience.
+The Blog Spotter client serves as the user interface for the blogging platform, enabling users to interact with the system effortlessly. It offers robust features like authentication, blog management, commenting, and wishlist handling while ensuring a visually appealing and responsive design.
+## Live Links
+https://blog-spotter.firebaseapp.com
