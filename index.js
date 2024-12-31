@@ -15,14 +15,17 @@ app.use(cookieParser());
 const verifyToken = (req, res, next) => {
   const token = req.cookies?.token;
   if(!token){
+    console.log('Token not found in cookies.');
     return res.status(401).send({message: 'Unauthorized Access'})
   }
   jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
     if(error) {
+      console.log('Token verification failed:', error.message);
       return res.status(401).send({message: 'Unauthorized Access'})
 
     }
     req.user = decoded;
+    console.log('Token verified successfully:', decoded);
     next();
   })
 }
@@ -80,7 +83,7 @@ async function run() {
     .send({success: true})
 })
     // posting a blog
-    app.post('/blogs', async(req, res) => {
+    app.post('/blogs',verifyToken, async(req, res) => {
       const blog = req.body;
       const result = await blogsCollection.insertOne(blog);
       res.send(result);
@@ -114,8 +117,8 @@ async function run() {
         res.status(500).send({ message: "Error fetching blogs", error: error.message });
       }
     });
-    // getting blog by id
-    app.get('/blogs/:id', async(req, res) =>{
+    // getting blog by id (for details)
+    app.get('/blogs/:id',verifyToken, async(req, res) =>{
       const id = req.params.id;
       const query = {_id : new ObjectId(id)}
       const result = await blogsCollection.find(query).toArray();
@@ -183,12 +186,7 @@ async function run() {
       res.send(result);
     })
 
-    // wishlist
-    // app.post('/wishlist', async(req, res) =>{
-    //   const wish = req.body;
-    //   const result = await wishlist.insertOne(wish);
-    //   res.send(result);
-    // })
+  //  posting to wishlist
     app.post('/wishlist', async (req, res) => {
       try {
         const wish = req.body;
@@ -205,24 +203,17 @@ async function run() {
     });
     
     
-    // getting data
+    // getting data from wishlist
     app.get('/wishlist', verifyToken, async(req, res) =>{
       const email = req.query.email;
       // console.log(email);
       const query = { email: email }
       const result = await wishlist.find(query).toArray();
-      console.log(result);
+      // console.log(result);
       res.send(result);
     })
+   
     // deleting from wishlist
-    // app.delete('/wishlist/:id', async(req, res) =>{
-    //   const query = { _id: new ObjectId(req.params.id) };
-    //   const result = await wishlist.deleteOne(query);
-    //   res.send(result);
-    // })
-
-    
-    
     app.delete('/wishlist/:id', async (req, res) => {
       try {
         const query = { _id: new ObjectId(req.params.id) }; // Ensure ObjectId is imported from 'mongodb'
@@ -235,8 +226,7 @@ async function run() {
     });
     
     // getting data for featured 
-   
-    app.get('/featured', async (req, res) => {
+    app.get('/featured', verifyToken,  async (req, res) => {
       try {
         // Use blogsCollection instead of db.blogsCollection
         const topBlogs = await blogsCollection.aggregate([
