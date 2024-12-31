@@ -26,6 +26,7 @@ const verifyToken = (req, res, next) => {
     next();
   })
 }
+
 app.use(cors({
   origin: ['http://localhost:5173'],
   credentials: true
@@ -125,8 +126,10 @@ async function run() {
       const id = req.params.id;
       const query = {_id : new ObjectId(id)}
       const result = await blogsCollection.find(query).toArray();
+      console.log(result);
       res.send(result)
     })
+  
     // updating information
     app.patch('/update/:id', async (req, res) => {
       const id = req.params.id;
@@ -192,14 +195,29 @@ async function run() {
       // console.log(email);
       const query = { email: email }
       const result = await wishlist.find(query).toArray();
+      console.log(result);
       res.send(result);
     })
     // deleting from wishlist
-    app.delete('/wishlist/:id', async(req, res) =>{
-      const query = { _id: new ObjectId(req.params.id) };
-      const result = await wishlist.deleteOne(query);
-      res.send(result);
-    })
+    // app.delete('/wishlist/:id', async(req, res) =>{
+    //   const query = { _id: new ObjectId(req.params.id) };
+    //   const result = await wishlist.deleteOne(query);
+    //   res.send(result);
+    // })
+
+    
+    
+    app.delete('/wishlist/:id', async (req, res) => {
+      try {
+        const query = { _id: new ObjectId(req.params.id) }; // Ensure ObjectId is imported from 'mongodb'
+        const result = await wishlist.deleteOne(query); // Replace `wishlist` with your actual collection reference
+        res.status(200).json(result);
+      } catch (error) {
+        console.error("Error deleting wishlist item:", error);
+        res.status(500).json({ error: "Failed to delete item" });
+      }
+    });
+    
     // getting data for featured 
    
     app.get('/featured', async (req, res) => {
@@ -230,6 +248,21 @@ async function run() {
         res.status(500).json({ error: "Internal Server Error" });
       }
     });
+
+    // six post
+    app.get('/recent-blogs', async (req, res) => {
+      try {
+        const result = await blogsCollection
+          .find()
+          .sort({ postedTime: -1 }) // Sort by postedTime (most recent first)
+          .limit(6) // Limit to 6 blogs
+          .toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to fetch recent blogs", error });
+      }
+    });
+    
 
   } finally {
     // Ensures that the client will close when you finish/error
