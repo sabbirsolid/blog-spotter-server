@@ -63,7 +63,7 @@ async function run() {
     // auth related apis
     app.post("/jwt", async (req, res) => {
       const user = req.body;
-      console.log(process.env.JWT_SECRET);
+      // console.log(process.env.JWT_SECRET);
       const token = jwt.sign(user, process.env.JWT_SECRET, {
         expiresIn: "10h",
       });
@@ -209,20 +209,28 @@ async function run() {
           const result = await wishlist.insertOne(req.body);
           res.send(result);
       } catch (error) {
-          console.error("Error adding to wishlist:", error);
+          // console.error("Error adding to wishlist:", error);
           res.status(500).send({ message: "Failed to add to wishlist." });
       }
   });
   
 
-    // getting data from wishlist
+    //getting data from wishlist
     app.get("/wishlist", verifyToken, async (req, res) => {
       const query = { userEmail: req.query.email };
+
+      if(req.user.email !== req.query.email){
+        return res.status(403).send({message: "Forbidden Access"})
+    }
+
       const result = await wishlist.find(query).toArray();
       // console.log(result);
       res.send(result);
     });
 
+
+    
+  
    // deleting from wishlist
     app.delete("/wishlist/:id", async (req, res) => {
         const query = { _id: new ObjectId(req.params.id)}; // Ensure ObjectId is imported from 'mongodb'
