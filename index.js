@@ -32,7 +32,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://blog-spotter.web.app",
-      "https://blog-spotter.firebaseapp.com",
+      "https://blog-spotter.firebaseapp.com"
     ],
     credentials: true,
   })
@@ -41,7 +41,6 @@ app.use(express.json());
 // mongo information
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.98vvu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -64,7 +63,7 @@ async function run() {
     // auth related apis
     app.post("/jwt", async (req, res) => {
       const user = req.body;
-      // console.log(process.env.JWT_SECRET);
+      console.log(process.env.JWT_SECRET);
       const token = jwt.sign(user, process.env.JWT_SECRET, {
         expiresIn: "10h",
       });
@@ -141,7 +140,7 @@ async function run() {
     });
 
     // updating information
-    app.patch("/update/:id", async (req, res) => {
+    app.patch("/update/:id",verifyToken, async (req, res) => {
       const id = req.params.id;
       const data = req.body;
 
@@ -194,42 +193,42 @@ async function run() {
       res.send(result);
     });
 
-    //  posting to wishlist
     app.post("/wishlist", async (req, res) => {
+      const { blogId, userEmail } = req.body;
+  
       try {
-        const wish = req.body;
-        const filter = { email: wish.email, title: wish.title }; // Define uniqueness condition
-        const update = { $set: wish }; // Update data
-        const options = { upsert: true }; // Insert if not found
-
-        const result = await wishlist.updateOne(filter, update, options);
-        res.send(result);
-      } catch (err) {
-        // console.error('Error handling wishlist:', err);
-        res.status(500).send({ message: "Internal server error" });
+          // Check if the blog is already in the wishlist for the user
+          const existingWish = await wishlist.findOne({ blogId, userEmail });
+  
+          if (existingWish) {
+              // If it exists, return a response indicating that it already exists
+              return res.status(409).send({ message: "Blog already in wishlist." });
+          }
+  
+          // If it doesn't exist, insert the new wish
+          const result = await wishlist.insertOne(req.body);
+          res.send(result);
+      } catch (error) {
+          console.error("Error adding to wishlist:", error);
+          res.status(500).send({ message: "Failed to add to wishlist." });
       }
-    });
+  });
+  
 
     // getting data from wishlist
     app.get("/wishlist", verifyToken, async (req, res) => {
-      const email = req.query.email;
-      // console.log(email);
-      const query = { email: email };
+      const query = { userEmail: req.query.email };
       const result = await wishlist.find(query).toArray();
       // console.log(result);
       res.send(result);
     });
 
-    // deleting from wishlist
+   // deleting from wishlist
     app.delete("/wishlist/:id", async (req, res) => {
-      try {
-        const query = { _id: new ObjectId(req.params.id) }; // Ensure ObjectId is imported from 'mongodb'
+        const query = { _id: new ObjectId(req.params.id)}; // Ensure ObjectId is imported from 'mongodb'
         const result = await wishlist.deleteOne(query); // Replace `wishlist` with your actual collection reference
-        res.status(200).json(result);
-      } catch (error) {
-        // console.error("Error deleting wishlist item:", error);
-        res.status(500).json({ error: "Failed to delete item" });
-      }
+        res.send(result);
+     
     });
 
     // getting data for featured
