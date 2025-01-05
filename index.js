@@ -92,40 +92,7 @@ async function run() {
       const result = await blogsCollection.insertOne(blog);
       res.send(result);
     });
-    //  getting blogs
-    // app.get("/blogs", async (req, res) => {
-    //   const page = parseInt(req.query.page);
-    //   const size = parseInt(req.query.size);
-    //   const search = req.query.search || ""; // Get the search query, default to empty string if not provided
-    //   const category = req.query.category || ""; // Get the category, default to empty string if not provided
-
-    //   let filter = {};
-
-    //   // If there's a search query, filter the blogs by title (or other fields like content)
-    //   if (search) {
-    //     filter.title = { $regex: search, $options: "i" }; // Case-insensitive search by title
-    //   }
-
-    //   // If a category is selected, filter by category
-    //   if (category) {
-    //     filter.category = category;
-    //   }
-
-    //   try {
-    //     const result = await blogsCollection
-    //       .find(filter)
-    //       .skip(page * size)
-    //       .limit(size)
-    //       .toArray();
-    //     res.send(result);
-    //   } catch (error) {
-    //     res
-    //       .status(500)
-    //       .send({ message: "Error fetching blogs", error: error.message });
-    //   }
-    // });
-
-
+   
     app.get("/blogs", async (req, res) => {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
