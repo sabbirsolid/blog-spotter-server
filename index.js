@@ -31,8 +31,9 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
+      "http://localhost:5174",
       "https://blog-spotter.web.app",
-      "https://blog-spotter.firebaseapp.com"
+      "https://blog-spotter.firebaseapp.com",
     ],
     credentials: true,
   })
@@ -92,6 +93,39 @@ async function run() {
       res.send(result);
     });
     //  getting blogs
+    // app.get("/blogs", async (req, res) => {
+    //   const page = parseInt(req.query.page);
+    //   const size = parseInt(req.query.size);
+    //   const search = req.query.search || ""; // Get the search query, default to empty string if not provided
+    //   const category = req.query.category || ""; // Get the category, default to empty string if not provided
+
+    //   let filter = {};
+
+    //   // If there's a search query, filter the blogs by title (or other fields like content)
+    //   if (search) {
+    //     filter.title = { $regex: search, $options: "i" }; // Case-insensitive search by title
+    //   }
+
+    //   // If a category is selected, filter by category
+    //   if (category) {
+    //     filter.category = category;
+    //   }
+
+    //   try {
+    //     const result = await blogsCollection
+    //       .find(filter)
+    //       .skip(page * size)
+    //       .limit(size)
+    //       .toArray();
+    //     res.send(result);
+    //   } catch (error) {
+    //     res
+    //       .status(500)
+    //       .send({ message: "Error fetching blogs", error: error.message });
+    //   }
+    // });
+
+
     app.get("/blogs", async (req, res) => {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
@@ -123,6 +157,7 @@ async function run() {
           .send({ message: "Error fetching blogs", error: error.message });
       }
     });
+
     // getting blog by id (for details)
     app.get("/blogs/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
@@ -140,7 +175,7 @@ async function run() {
     });
 
     // updating information
-    app.patch("/update/:id",verifyToken, async (req, res) => {
+    app.patch("/update/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const data = req.body;
 
@@ -195,48 +230,43 @@ async function run() {
 
     app.post("/wishlist", async (req, res) => {
       const { blogId, userEmail } = req.body;
-  
+
       try {
-          // Check if the blog is already in the wishlist for the user
-          const existingWish = await wishlist.findOne({ blogId, userEmail });
-  
-          if (existingWish) {
-              // If it exists, return a response indicating that it already exists
-              return res.status(409).send({ message: "Blog already in wishlist." });
-          }
-  
-          // If it doesn't exist, insert the new wish
-          const result = await wishlist.insertOne(req.body);
-          res.send(result);
+        // Check if the blog is already in the wishlist for the user
+        const existingWish = await wishlist.findOne({ blogId, userEmail });
+
+        if (existingWish) {
+          // If it exists, return a response indicating that it already exists
+          return res.status(409).send({ message: "Blog already in wishlist." });
+        }
+
+        // If it doesn't exist, insert the new wish
+        const result = await wishlist.insertOne(req.body);
+        res.send(result);
       } catch (error) {
-          // console.error("Error adding to wishlist:", error);
-          res.status(500).send({ message: "Failed to add to wishlist." });
+        // console.error("Error adding to wishlist:", error);
+        res.status(500).send({ message: "Failed to add to wishlist." });
       }
-  });
-  
+    });
 
     //getting data from wishlist
     app.get("/wishlist", verifyToken, async (req, res) => {
       const query = { userEmail: req.query.email };
 
-      if(req.user.email !== req.query.email){
-        return res.status(403).send({message: "Forbidden Access"})
-    }
+      if (req.user.email !== req.query.email) {
+        return res.status(403).send({ message: "Forbidden Access" });
+      }
 
       const result = await wishlist.find(query).toArray();
       // console.log(result);
       res.send(result);
     });
 
-
-    
-  
-   // deleting from wishlist
+    // deleting from wishlist
     app.delete("/wishlist/:id", async (req, res) => {
-        const query = { _id: new ObjectId(req.params.id)}; // Ensure ObjectId is imported from 'mongodb'
-        const result = await wishlist.deleteOne(query); // Replace `wishlist` with your actual collection reference
-        res.send(result);
-     
+      const query = { _id: new ObjectId(req.params.id) }; // Ensure ObjectId is imported from 'mongodb'
+      const result = await wishlist.deleteOne(query); // Replace `wishlist` with your actual collection reference
+      res.send(result);
     });
 
     // getting data for featured
